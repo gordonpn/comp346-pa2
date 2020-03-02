@@ -120,7 +120,7 @@ Evaluation criteria
 # Required documents:
 
 * Source codes in Java.
-* Output test cases for phase (i) (unsyncrhonized and synchronized) and for phase
+* Output test cases for phase (i) (unsynchronized and synchronized) and for phase
 (ii).
 * I have included DEBUG flags in the source code in order to help you trace the
 program but once your program works properly you should put the DEBUG
