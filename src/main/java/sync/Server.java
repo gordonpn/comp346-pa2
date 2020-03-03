@@ -409,7 +409,19 @@ public class Server extends Thread {
     Transactions trans = new Transactions();
     long serverStartTime = System.currentTimeMillis();
 
+    if (getServerThreadId().equals("666")) {
+      setServerThreadRunningStatus1("running");
+    } else if (getServerThreadId().equals("999")) {
+      setServerThreadRunningStatus2("running");
+    }
+
     processTransactions(trans);
+
+    if (getServerThreadId().equals("666")) {
+      setServerThreadRunningStatus1("terminated");
+    } else if (getServerThreadId().equals("999")) {
+      setServerThreadRunningStatus2("terminated");
+    }
 
     long serverEndTime = System.currentTimeMillis();
 
@@ -419,12 +431,22 @@ public class Server extends Thread {
 
     /* .....................................................................................................................................................................................................*/
 
-    System.out.println(
-        "\n Terminating server thread - "
-            + " Running time "
-            + (serverEndTime - serverStartTime)
-            + " milliseconds");
+    while (true) {
+      /*................................................................................................................................................................*/
+      if (serverThreadRunningStatus1.equals("terminated")
+          && serverThreadRunningStatus2.equals("terminated")) {
 
-    Network.disconnect(Network.getServerIP());
+        Network.disconnect(Network.getServerIP());
+
+        System.out.println(
+            "\n Terminating server thread id "
+                + serverThreadId
+                + " - Running time "
+                + (serverEndTime - serverStartTime)
+                + " milliseconds");
+        break;
+      }
+      Thread.yield();
+    }
   }
 }
