@@ -246,6 +246,7 @@ public class Server extends Thread {
 
     /* Process the accounts until the client disconnects */
     while ((!Network.getClientConnectionStatus().equals("disconnected"))) {
+
       while ((Network.getInBufferStatus().equals("empty")
           && !Network.getClientConnectionStatus().equals("disconnected"))) {
         Thread.yield(); /* Yield the cpu if the network input buffer is empty */
