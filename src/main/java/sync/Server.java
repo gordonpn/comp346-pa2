@@ -246,11 +246,10 @@ public class Server extends Thread {
 
     /* Process the accounts until the client disconnects */
     while ((!Network.getClientConnectionStatus().equals("disconnected"))) {
-      // while ( (Network.getInBufferStatus().equals("empty") &&
-      // !Network.getClientConnectionStatus().equals("disconnected")) )
-      // {
-      //	 Thread.yield(); 	/* Yield the cpu if the network input buffer is empty */
-      // }
+      while ((Network.getInBufferStatus().equals("empty")
+          && !Network.getClientConnectionStatus().equals("disconnected"))) {
+        Thread.yield(); /* Yield the cpu if the network input buffer is empty */
+      }
 
       if (!Network.getInBufferStatus().equals("empty")) {
         /* System.out.println("\n DEBUG : Server.processTransactions() - transferring in account " + trans.getAccountNumber()); */
@@ -283,17 +282,16 @@ public class Server extends Thread {
           /* System.out.println("\n DEBUG : Server.processTransactions() - Obtaining balance from account" + trans.getAccountNumber()); */
         }
 
-        //	 while (Network.getOutBufferStatus().equals("full"))
-        //	 {
-        //		 Thread.yield();		/* Yield the cpu if the network output buffer is full */
-        //	 }
+        while (Network.getOutBufferStatus().equals("full")) {
+          Thread.yield(); /* Yield the cpu if the network output buffer is full */
+        }
 
         /* System.out.println("\n DEBUG : Server.processTransactions() - transferring out account " + trans.getAccountNumber()); */
 
-        Network.transferOut(
-            trans); /* Transfer a completed transaction from the server to the network output buffer */
-        setNumberOfTransactions(
-            (getNumberOfTransactions() + 1)); /* Count the number of transactions processed */
+        Network.transferOut(trans);
+        /* Transfer a completed transaction from the server to the network output buffer */
+        setNumberOfTransactions((getNumberOfTransactions() + 1));
+        /* Count the number of transactions processed */
       }
     }
 
@@ -409,12 +407,12 @@ public class Server extends Thread {
   public void run() {
     Transactions trans = new Transactions();
     long serverStartTime = System.currentTimeMillis();
+
+    processTransactions(trans);
+
     long serverEndTime = System.currentTimeMillis();
 
     /* System.out.println("\n DEBUG : Server.run() - starting server thread " + getServerThreadId() + " " + Network.getServerConnectionStatus()); */
-
-    //	Transactions trans = new Transactions();
-    //    	long serverStartTime, serverEndTime;
 
     /* System.out.println("\n DEBUG : Server.run() - starting server thread " + objNetwork.getServerConnectionStatus()); */
 
@@ -425,5 +423,7 @@ public class Server extends Thread {
             + " Running time "
             + (serverEndTime - serverStartTime)
             + " milliseconds");
+
+    Network.disconnect(Network.getServerIP());
   }
 }

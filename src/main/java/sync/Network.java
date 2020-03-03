@@ -344,9 +344,8 @@ public class Network extends Thread {
     /* System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient); */
     /* System.out.println("\n DEBUG : Network.send() - account number " + inComingPacket[inputIndexClient].getAccountNumber()); */
 
-    setinputIndexClient(
-        ((getinputIndexClient() + 1)
-            % getMaxNbPackets())); /* Increment the input buffer index  for the client */
+    setinputIndexClient(((getinputIndexClient() + 1) % getMaxNbPackets()));
+    /* Increment the input buffer index  for the client */
     /* Check if input buffer is full */
     if (getinputIndexClient() == getoutputIndexServer()) {
       setInBufferStatus("full");
@@ -377,9 +376,8 @@ public class Network extends Thread {
     /* System.out.println("\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient); */
     /* System.out.println("\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber()); */
 
-    setoutputIndexClient(
-        ((getoutputIndexClient() + 1)
-            % getMaxNbPackets())); /* Increment the output buffer index for the client */
+    setoutputIndexClient(((getoutputIndexClient() + 1) % getMaxNbPackets()));
+    /* Increment the output buffer index for the client */
     /* Check if output buffer is empty */
     if (getoutputIndexClient() == getinputIndexServer()) {
       setOutBufferStatus("empty");
@@ -410,9 +408,8 @@ public class Network extends Thread {
     /* System.out.println("\n DEBUG : Network.transferOut() - index inputIndexServer " + inputIndexServer); */
     /* System.out.println("\n DEBUG : Network.transferOut() - account number " + outGoingPacket[inputIndexServer].getAccountNumber()); */
 
-    setinputIndexServer(
-        ((getinputIndexServer() + 1)
-            % getMaxNbPackets())); /* Increment the output buffer index for the server */
+    setinputIndexServer(((getinputIndexServer() + 1) % getMaxNbPackets()));
+    /* Increment the output buffer index for the server */
     /* Check if output buffer is full */
     if (getinputIndexServer() == getoutputIndexClient()) {
       setOutBufferStatus("full");
@@ -443,9 +440,8 @@ public class Network extends Thread {
     /* System.out.println("\n DEBUG : Network.transferIn() - index outputIndexServer " + outputIndexServer); */
     /* System.out.println("\n DEBUG : Network.transferIn() - account number " + inPacket.getAccountNumber()); */
 
-    setoutputIndexServer(
-        ((getoutputIndexServer() + 1)
-            % getMaxNbPackets())); /* Increment the input buffer index for the server */
+    setoutputIndexServer(((getoutputIndexServer() + 1) % getMaxNbPackets()));
+    /* Increment the input buffer index for the server */
     /* Check if input buffer is empty */
     if (getoutputIndexServer() == getinputIndexClient()) {
       setInBufferStatus("empty");
@@ -518,6 +514,13 @@ public class Network extends Thread {
 
     while (true) {
       /*................................................................................................................................................................*/
+      if (clientConnectionStatus.equals("disconnected")
+          && serverConnectionStatus.equals("disconnected")) {
+        System.out.println(
+            "\n Terminating network thread - Client disconnected Server disconnected");
+        break;
+      }
+      Thread.yield();
     }
   }
 }
