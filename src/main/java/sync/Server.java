@@ -30,6 +30,7 @@ public class Server extends Thread {
       serverThreadRunningStatus1; /* Running status of thread 1 - idle, running, terminated */
   private static String
       serverThreadRunningStatus2; /* Running status of thread 2 - idle, running, terminated */
+  private static Object lock = new Object();
 
   /**
    * Constructor method of Client class
@@ -326,8 +327,8 @@ public class Server extends Thread {
    * @param i, amount
    */
   public double deposit(int i, double amount) {
+    double curBalance; /* Current account balance */
     synchronized (account) {
-      double curBalance; /* Current account balance */
       curBalance = account[i].getBalance(); /* Get current account balance */
       /* NEW : A server thread is blocked before updating the 10th , 20th, ... 70th account balance in order to simulate an inconsistency situation */
       if (((i + 1) % 10) == 0) {
@@ -349,8 +350,8 @@ public class Server extends Thread {
               + " "
               + getServerThreadId());
       account[i].setBalance(curBalance + amount); /* Deposit amount in the account */
+      return account[i].getBalance(); /* Return updated account balance */
     }
-    return account[i].getBalance(); /* Return updated account balance */
   }
 
   /**
@@ -360,8 +361,8 @@ public class Server extends Thread {
    * @param i, amount
    */
   public double withdraw(int i, double amount) {
+    double curBalance; /* Current account balance */
     synchronized (account) {
-      double curBalance; /* Current account balance */
       curBalance = account[i].getBalance(); /* Get current account balance */
       System.out.println(
           "\n DEBUG : Server.withdraw - "
@@ -374,8 +375,8 @@ public class Server extends Thread {
               + " "
               + getServerThreadId());
       account[i].setBalance(curBalance - amount); /* Withdraw amount in the account */
+      return account[i].getBalance(); /* Return updated account balance */
     }
-    return account[i].getBalance(); /* Return updated account balance */
   }
 
   /**
@@ -458,19 +459,20 @@ public class Server extends Thread {
       }
       Thread.yield();
     }
+    if (getServerThreadId().equals("666")) {
+      System.out.println();
 
-    System.out.println();
+      double balance1 = account[findAccount("60520")].getBalance();
+      double balance2 = account[findAccount("22310")].getBalance();
+      double balance3 = account[findAccount("91715")].getBalance();
 
-    double balance1 = account[findAccount("60520")].getBalance();
-    double balance2 = account[findAccount("22310")].getBalance();
-    double balance3 = account[findAccount("91715")].getBalance();
+      String result1 = (balance1 == 1000.0) ? "\t✅ Pass" : "\t❗️ Fail";
+      String result2 = (balance2 == 50.0) ? "\t✅ Pass" : "\t❗️ Fail";
+      String result3 = (balance3 == -50.0) ? "\t✅ Pass" : "\t❗️ Fail";
 
-    String result1 = (balance1 == 1000.0) ? " ☑️" : " 🆇";
-    String result2 = (balance2 == 50.0) ? " ☑️" : " 🆇";
-    String result3 = (balance3 == -50.0) ? " ☑️" : " 🆇";
-
-    System.out.println("60520 : " + balance1 + result1);
-    System.out.println("22310 : " + balance2 + result2);
-    System.out.println("91715 : " + balance3 + result3);
+      System.out.println("60520 : " + balance1 + result1);
+      System.out.println("22310 : " + balance2 + result2);
+      System.out.println("91715 : " + balance3 + result3);
+    }
   }
 }
