@@ -99,7 +99,7 @@ server threads compared to using busy-waiting in phase (i).
 
 # Sample output test cases:
 
-* See attached text files.
+* See sample logs in repo.
 
 # Evaluation:
 
