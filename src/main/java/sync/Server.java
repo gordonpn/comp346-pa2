@@ -240,7 +240,7 @@ public class Server extends Thread {
    * @return
    * @param trans
    */
-  public boolean processTransactions(Transactions trans) {
+  public boolean processTransactions(Transactions trans) throws InterruptedException {
     int accIndex; /* Index position of account to update */
     double newBalance; /* Updated account balance */
 
@@ -423,6 +423,7 @@ public class Server extends Thread {
    * @param
    */
   public void run() {
+    try {
     Transactions trans = new Transactions();
     long serverStartTime = System.currentTimeMillis();
 
@@ -432,7 +433,7 @@ public class Server extends Thread {
       setServerThreadRunningStatus2("running");
     }
 
-    processTransactions(trans);
+      processTransactions(trans);
 
     if (getServerThreadId().equals("666")) {
       setServerThreadRunningStatus1("terminated");
@@ -473,6 +474,9 @@ public class Server extends Thread {
       System.out.println("60520 : " + balance1 + result1);
       System.out.println("22310 : " + balance2 + result2);
       System.out.println("91715 : " + balance3 + result3);
+    }
+    } catch (InterruptedException e) {
+      System.out.println(e.getMessage());
     }
   }
 }

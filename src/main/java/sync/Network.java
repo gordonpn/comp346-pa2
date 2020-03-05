@@ -33,6 +33,8 @@ public class Network extends Thread {
   private static String inBufferStatus,
       outBufferStatus; /* Current status of the network buffers - normal, full, empty */
   private static String networkStatus; /* Network status - active, inactive */
+  private static Semaphore semaphoreIn;
+  private static Semaphore semaphoreOut;
 
   /**
    * Constructor of the Network class
@@ -62,8 +64,10 @@ public class Network extends Thread {
     inputIndexServer = 0;
     outputIndexServer = 0;
     outputIndexClient = 0;
-
     networkStatus = "active";
+
+    semaphoreIn = new Semaphore(maxNbPackets);
+    semaphoreOut = new Semaphore(maxNbPackets);
   }
 
   /**
@@ -332,7 +336,9 @@ public class Network extends Thread {
    * @return
    * @param inPacket transaction transferred from the client
    */
-  public static boolean send(Transactions inPacket) {
+  public static boolean send(Transactions inPacket) throws InterruptedException {
+
+    semaphoreIn.acquire();
 
     inComingPacket[inputIndexClient].setAccountNumber(inPacket.getAccountNumber());
     inComingPacket[inputIndexClient].setOperationType(inPacket.getOperationType());
@@ -345,6 +351,8 @@ public class Network extends Thread {
     System.out.println(
         "\n DEBUG : Network.send() - account number "
             + inComingPacket[inputIndexClient].getAccountNumber());
+
+    semaphoreIn.release();
 
     setinputIndexClient(((getinputIndexClient() + 1) % getMaxNbPackets()));
     /* Increment the input buffer index  for the client */
@@ -367,7 +375,9 @@ public class Network extends Thread {
    * @return
    * @param outPacket updated transaction received by the client
    */
-  public static boolean receive(Transactions outPacket) {
+  public static boolean receive(Transactions outPacket) throws InterruptedException {
+
+    semaphoreOut.acquire();
 
     outPacket.setAccountNumber(outGoingPacket[outputIndexClient].getAccountNumber());
     outPacket.setOperationType(outGoingPacket[outputIndexClient].getOperationType());
@@ -380,6 +390,8 @@ public class Network extends Thread {
         "\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient);
     System.out.println(
         "\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
+
+    semaphoreOut.release();
 
     setoutputIndexClient(((getoutputIndexClient() + 1) % getMaxNbPackets()));
     /* Increment the output buffer index for the client */
@@ -402,7 +414,9 @@ public class Network extends Thread {
    * @return
    * @param outPacket updated transaction transferred by the server to the network output buffer
    */
-  public static boolean transferOut(Transactions outPacket) {
+  public static boolean transferOut(Transactions outPacket) throws InterruptedException {
+
+    semaphoreOut.acquire();
 
     outGoingPacket[inputIndexServer].setAccountNumber(outPacket.getAccountNumber());
     outGoingPacket[inputIndexServer].setOperationType(outPacket.getOperationType());
@@ -416,6 +430,8 @@ public class Network extends Thread {
     System.out.println(
         "\n DEBUG : Network.transferOut() - account number "
             + outGoingPacket[inputIndexServer].getAccountNumber());
+
+    semaphoreOut.release();
 
     setinputIndexServer(((getinputIndexServer() + 1) % getMaxNbPackets()));
     /* Increment the output buffer index for the server */
@@ -438,7 +454,9 @@ public class Network extends Thread {
    * @return
    * @param inPacket transaction transferred from the input buffer to the server
    */
-  public static boolean transferIn(Transactions inPacket) {
+  public static boolean transferIn(Transactions inPacket) throws InterruptedException {
+
+    semaphoreIn.acquire();
 
     inPacket.setAccountNumber(inComingPacket[outputIndexServer].getAccountNumber());
     inPacket.setOperationType(inComingPacket[outputIndexServer].getOperationType());
@@ -451,6 +469,8 @@ public class Network extends Thread {
         "\n DEBUG : Network.transferIn() - index outputIndexServer " + outputIndexServer);
     System.out.println(
         "\n DEBUG : Network.transferIn() - account number " + inPacket.getAccountNumber());
+
+    semaphoreIn.release();
 
     setoutputIndexServer(((getoutputIndexServer() + 1) % getMaxNbPackets()));
     /* Increment the input buffer index for the server */

@@ -136,7 +136,7 @@ public class Client extends Thread {
    * @return
    * @param
    */
-  public void sendTransactions() {
+  public void sendTransactions() throws InterruptedException {
     int i = 0; /* index of transaction array */
 
     while (i < getNumberOfTransactions()) {
@@ -162,7 +162,7 @@ public class Client extends Thread {
    * @return
    * @param transact
    */
-  public void receiveTransactions(Transactions transact) {
+  public void receiveTransactions(Transactions transact) throws InterruptedException {
     int i = 0; /* Index of transaction array */
 
     while (i < getNumberOfTransactions()) {
@@ -204,34 +204,38 @@ public class Client extends Thread {
    * @param
    */
   public void run() {
-    Transactions transact = new Transactions();
+    try {
+      Transactions transact = new Transactions();
 
-    if (getClientOperation().equals("sending")) {
-      long sendClientStartTime = System.currentTimeMillis();
+      if (getClientOperation().equals("sending")) {
+        long sendClientStartTime = System.currentTimeMillis();
 
-      sendTransactions();
-      System.out.println("\n Terminating client sending thread");
+        sendTransactions();
+        System.out.println("\n Terminating client sending thread");
 
-      long sendClientEndTime = System.currentTimeMillis();
-      System.out.println(
-          "\n Sending client thread - Running time "
-              + (sendClientEndTime - sendClientStartTime)
-              + " milliseconds");
-    }
+        long sendClientEndTime = System.currentTimeMillis();
+        System.out.println(
+            "\n Sending client thread - Running time "
+                + (sendClientEndTime - sendClientStartTime)
+                + " milliseconds");
+      }
 
-    if (getClientOperation().equals("receiving")) {
-      long receiveClientStartTime = System.currentTimeMillis();
+      if (getClientOperation().equals("receiving")) {
+        long receiveClientStartTime = System.currentTimeMillis();
 
-      receiveTransactions(transact);
-      System.out.println("\n Terminating client receiving thread");
+        receiveTransactions(transact);
+        System.out.println("\n Terminating client receiving thread");
 
-      long receiveClientEndTime = System.currentTimeMillis();
-      System.out.println(
-          "\n Receiving client thread - Running time "
-              + (receiveClientEndTime - receiveClientStartTime)
-              + " milliseconds");
+        long receiveClientEndTime = System.currentTimeMillis();
+        System.out.println(
+            "\n Receiving client thread - Running time "
+                + (receiveClientEndTime - receiveClientStartTime)
+                + " milliseconds");
 
-      Network.disconnect(Network.getClientIP());
+        Network.disconnect(Network.getClientIP());
+      }
+    } catch (InterruptedException e) {
+      System.out.println(e.getMessage());
     }
   }
 }
