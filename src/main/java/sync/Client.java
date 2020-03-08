@@ -5,12 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Client class
  *
@@ -122,10 +116,10 @@ public class Client extends Thread {
     }
     setNumberOfTransactions(i); /* Record the number of transactions processed */
 
-    System.out.println(
-        "\n DEBUG : Client.readTransactions() - "
-            + getNumberOfTransactions()
-            + " transactions processed");
+    /*
+     * System.out.println("\n DEBUG : Client.readTransactions() - " +
+     * getNumberOfTransactions() + " transactions processed");
+     */
 
     inputStream.close();
   }
@@ -147,9 +141,11 @@ public class Client extends Thread {
 
       transaction[i].setTransactionStatus("sent"); /* Set current transaction status */
 
-      System.out.println(
-          "\n DEBUG : Client.sendTransactions() - sending transaction on account "
-              + transaction[i].getAccountNumber());
+      /*
+       * System.out.
+       * println("\n DEBUG : Client.sendTransactions() - sending transaction on account "
+       * + transaction[i].getAccountNumber());
+       */
 
       Network.send(transaction[i]); /* Transmit current transaction */
       i++;
@@ -166,16 +162,17 @@ public class Client extends Thread {
     int i = 0; /* Index of transaction array */
 
     while (i < getNumberOfTransactions()) {
-
       while (Network.getOutBufferStatus().equals("empty")) {
         Thread.yield(); /* Yield the cpu if the network output buffer is full */
       }
 
       Network.receive(transact); /* Receive updated transaction from the network buffer */
 
-      System.out.println(
-          "\n DEBUG : Client.receiveTransactions() - receiving updated transaction on account "
-              + transact.getAccountNumber());
+      /*
+       * System.out.
+       * println("\n DEBUG : Client.receiveTransactions() - receiving updated transaction on account "
+       * + transact.getAccountNumber());
+       */
 
       System.out.println(transact); /* Display updated transaction */
       i++;
@@ -204,38 +201,51 @@ public class Client extends Thread {
    * @param
    */
   public void run() {
-    try {
-      Transactions transact = new Transactions();
+    Transactions transact = new Transactions();
+    long sendClientStartTime, sendClientEndTime;
+    long receiveClientStartTime, receiveClientEndTime;
 
-      if (getClientOperation().equals("sending")) {
-        long sendClientStartTime = System.currentTimeMillis();
+    /* Implement the code for the run method */
+    if (getClientOperation().equals("sending")) {
+      // System.out.println("\n DEBUG : Client.run() - starting client sending thread
+      // connected");
 
+      sendClientStartTime = System.currentTimeMillis();
+
+      try {
         sendTransactions();
-        System.out.println("\n Terminating client sending thread");
-
-        long sendClientEndTime = System.currentTimeMillis();
-        System.out.println(
-            "\n Sending client thread - Running time "
-                + (sendClientEndTime - sendClientStartTime)
-                + " milliseconds");
+      } catch (InterruptedException e) {
       }
 
-      if (getClientOperation().equals("receiving")) {
-        long receiveClientStartTime = System.currentTimeMillis();
+      sendClientEndTime = System.currentTimeMillis();
 
+      System.out.println(
+          "\n Terminating client sending thread - "
+              + " Running time "
+              + (sendClientEndTime - sendClientStartTime)
+              + " milliseconds");
+    }
+
+    if (getClientOperation().equals("receiving")) {
+      // System.out.println("\n DEBUG : Client.run() - starting client receiving
+      // thread connected");
+
+      receiveClientStartTime = System.currentTimeMillis();
+
+      try {
         receiveTransactions(transact);
-        System.out.println("\n Terminating client receiving thread");
-
-        long receiveClientEndTime = System.currentTimeMillis();
-        System.out.println(
-            "\n Receiving client thread - Running time "
-                + (receiveClientEndTime - receiveClientStartTime)
-                + " milliseconds");
-
-        Network.disconnect(Network.getClientIP());
+      } catch (InterruptedException e) {
       }
-    } catch (InterruptedException e) {
-      System.out.println(e.getMessage());
+
+      receiveClientEndTime = System.currentTimeMillis();
+
+      Network.disconnect(Network.getClientIP());
+
+      System.out.println(
+          "\n Terminating client receiving thread - "
+              + " Running time "
+              + (receiveClientEndTime - receiveClientStartTime)
+              + " milliseconds");
     }
   }
 }
