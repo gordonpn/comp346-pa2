@@ -574,6 +574,6 @@ public class Network extends Thread {
       Network.yield();
     }
 
-    System.out.println("\n Terminating network thread - Client & Server diconnected");
+    System.out.println("\n Terminating network thread - Client and Server disconnected");
   }
 }

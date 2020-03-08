@@ -26,7 +26,6 @@ public class Server extends Thread {
   /* Running status of thread 1 - idle, running, terminated */
   private static String serverThreadRunningStatus2;
   /* Running status of thread 2 - idle, running, terminated */
-  private static Object lock;
 
   /**
    * Constructor method of Client class
@@ -54,7 +53,6 @@ public class Server extends Thread {
       serverThreadId = stid; /* unshared variable so each thread has its own copy */
       serverThreadRunningStatus2 = "idle";
     }
-    lock = new Object();
   }
 
   /**
@@ -337,7 +335,7 @@ public class Server extends Thread {
   public double deposit(int i, double amount) {
     double curBalance; /* Current account balance */
 
-    synchronized (lock) {
+    synchronized (account) {
       curBalance = account[i].getBalance(); /* Get current account balance */
 
       /*
@@ -348,7 +346,6 @@ public class Server extends Thread {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
-          System.out.println("sleepo beepo woke up");
         }
       }
 
@@ -377,7 +374,7 @@ public class Server extends Thread {
   public double withdraw(int i, double amount) {
     double curBalance; /* Current account balance */
 
-    synchronized (lock) {
+    synchronized (account) {
       curBalance = account[i].getBalance(); /* Get current account balance */
 
       System.out.println(
@@ -406,7 +403,7 @@ public class Server extends Thread {
   public synchronized double query(int i) {
     double curBalance; /* Current account balance */
 
-    synchronized (lock) {
+    synchronized (account) {
       curBalance = account[i].getBalance(); /* Get current account balance */
     }
 
