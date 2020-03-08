@@ -328,7 +328,7 @@ public class Server extends Thread {
    */
   public double deposit(int i, double amount) {
     double curBalance; /* Current account balance */
-    synchronized (account) {
+    synchronized (lock) {
       curBalance = account[i].getBalance(); /* Get current account balance */
       /* NEW : A server thread is blocked before updating the 10th , 20th, ... 70th account balance in order to simulate an inconsistency situation */
       if (((i + 1) % 10) == 0) {
@@ -362,7 +362,7 @@ public class Server extends Thread {
    */
   public double withdraw(int i, double amount) {
     double curBalance; /* Current account balance */
-    synchronized (account) {
+    synchronized (lock) {
       curBalance = account[i].getBalance(); /* Get current account balance */
       System.out.println(
           "\n DEBUG : Server.withdraw - "
@@ -387,7 +387,7 @@ public class Server extends Thread {
    */
   public double query(int i) {
     double curBalance; /* Current account balance */
-    synchronized (account) {
+    synchronized (lock) {
       curBalance = account[i].getBalance(); /* Get current account balance */
     }
     System.out.println(
@@ -424,57 +424,63 @@ public class Server extends Thread {
    */
   public void run() {
     try {
-    Transactions trans = new Transactions();
-    long serverStartTime = System.currentTimeMillis();
+      Transactions trans = new Transactions();
 
-    if (getServerThreadId().equals("666")) {
-      setServerThreadRunningStatus1("running");
-    } else if (getServerThreadId().equals("999")) {
-      setServerThreadRunningStatus2("running");
-    }
-
-      processTransactions(trans);
-
-    if (getServerThreadId().equals("666")) {
-      setServerThreadRunningStatus1("terminated");
-    } else if (getServerThreadId().equals("999")) {
-      setServerThreadRunningStatus2("terminated");
-    }
-
-    long serverEndTime = System.currentTimeMillis();
-
-    while (true) {
-      if ((getServerThreadId().equals("999") && serverThreadRunningStatus1.equals("terminated"))
-          || (getServerThreadId().equals("666")
-              && serverThreadRunningStatus2.equals("terminated"))) {
-
-        Network.disconnect(Network.getServerIP());
-
+      if (getServerThreadId().equals("server1")) {
+        long serverStartTime1 = System.currentTimeMillis();
+        setServerThreadRunningStatus1("running");
+        processTransactions(trans);
+        setServerThreadRunningStatus1("terminated");
+        long serverEndTime1 = System.currentTimeMillis();
         System.out.println(
             "\n Terminating server thread id "
                 + serverThreadId
                 + " - Running time "
-                + (serverEndTime - serverStartTime)
+                + (serverEndTime1 - serverStartTime1)
                 + " milliseconds");
-        break;
       }
-      Thread.yield();
-    }
-    if (getServerThreadId().equals("666")) {
-      System.out.println();
 
-      double balance1 = account[findAccount("60520")].getBalance();
-      double balance2 = account[findAccount("22310")].getBalance();
-      double balance3 = account[findAccount("91715")].getBalance();
+      if (getServerThreadId().equals("server2")) {
+        long serverStartTime2 = System.currentTimeMillis();
+        setServerThreadRunningStatus2("running");
+        processTransactions(trans);
+        setServerThreadRunningStatus2("terminated");
+        long serverEndTime2 = System.currentTimeMillis();
+        System.out.println(
+            "\n Terminating server thread id "
+                + serverThreadId
+                + " - Running time "
+                + (serverEndTime2 - serverStartTime2)
+                + " milliseconds");
+      }
 
-      String result1 = (balance1 == 1000.0) ? "\t✅ Pass" : "\t❗️ Fail";
-      String result2 = (balance2 == 50.0) ? "\t✅ Pass" : "\t❗️ Fail";
-      String result3 = (balance3 == -50.0) ? "\t✅ Pass" : "\t❗️ Fail";
+      while (true) {
+        if ((getServerThreadId().equals("server2")
+                && serverThreadRunningStatus1.equals("terminated"))
+            || (getServerThreadId().equals("server1")
+                && serverThreadRunningStatus2.equals("terminated"))) {
 
-      System.out.println("60520 : " + balance1 + result1);
-      System.out.println("22310 : " + balance2 + result2);
-      System.out.println("91715 : " + balance3 + result3);
-    }
+          Network.disconnect(Network.getServerIP());
+
+          break;
+        }
+        Thread.yield();
+      }
+      if (getServerThreadId().equals("server1")) {
+        System.out.println();
+
+        double balance1 = account[findAccount("60520")].getBalance();
+        double balance2 = account[findAccount("22310")].getBalance();
+        double balance3 = account[findAccount("91715")].getBalance();
+
+        String result1 = (balance1 == 1000.0) ? "\t✅ Pass" : "\t❗️ Fail";
+        String result2 = (balance2 == 50.0) ? "\t✅ Pass" : "\t❗️ Fail";
+        String result3 = (balance3 == -50.0) ? "\t✅ Pass" : "\t❗️ Fail";
+
+        System.out.println("60520 : " + balance1 + result1);
+        System.out.println("22310 : " + balance2 + result2);
+        System.out.println("91715 : " + balance3 + result3);
+      }
     } catch (InterruptedException e) {
       System.out.println(e.getMessage());
     }
