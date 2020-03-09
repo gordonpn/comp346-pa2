@@ -247,11 +247,11 @@ public class Server extends Thread {
      */
 
     /* Process the accounts until the client disconnects */
-//    while ((!Network.getClientConnectionStatus().equals("disconnected"))) {
-//      while ((Network.getInBufferStatus().equals("empty")
-//          && !Network.getClientConnectionStatus().equals("disconnected"))) {
-//        Thread.yield(); /* Yield the cpu if the network input buffer is empty */
-//      }
+    while (Network.getClientConnectionStatus().equals("connected")) {
+      //      while ((Network.getInBufferStatus().equals("empty")
+      //          && !Network.getClientConnectionStatus().equals("disconnected"))) {
+      //        Thread.yield(); /* Yield the cpu if the network input buffer is empty */
+      //      }
 
       if (!Network.getInBufferStatus().equals("empty")) {
         /*
@@ -299,9 +299,9 @@ public class Server extends Thread {
            */
         }
 
-//        while (Network.getOutBufferStatus().equals("full")) {
-//          Thread.yield(); /* Yield the cpu if the network output buffer is full */
-//        }
+        //        while (Network.getOutBufferStatus().equals("full")) {
+        //          Thread.yield(); /* Yield the cpu if the network output buffer is full */
+        //        }
 
         /*
          * System.out.
@@ -316,11 +316,12 @@ public class Server extends Thread {
         setNumberOfTransactions((getNumberOfTransactions() + 1));
         /* Count the number of transactions processed */
       }
+    }
 
-    /*
-     * System.out.println("\n DEBUG : Server.processTransactions() - " +
-     * getNumberOfTransactions() + " accounts updated");
-     */
+    //    System.out.println(
+    //        "\n DEBUG : Server.processTransactions() - "
+    //            + getNumberOfTransactions()
+    //            + " accounts updated");
 
     return true;
   }
@@ -399,7 +400,7 @@ public class Server extends Thread {
    * @return balance
    * @param i
    */
-  public synchronized double query(int i) {
+  public double query(int i) {
     double curBalance; /* Current account balance */
 
     synchronized (account) {
@@ -442,88 +443,82 @@ public class Server extends Thread {
     Transactions trans = new Transactions();
     long serverStartTime1, serverEndTime1;
     long serverStartTime2, serverEndTime2;
+    try {
 
-    if (getServerThreadId().equals("server1")) {
+      if (getServerThreadId().equals("server1")) {
 
-      System.out.println(
-          "\n DEBUG : Server.run() - starting server thread "
-              + " "
-              + getServerThreadId()
-              + " "
-              + Network.getServerConnectionStatus());
+        serverStartTime1 = System.currentTimeMillis();
 
-      serverStartTime1 = System.currentTimeMillis();
+        System.out.println(
+            "\n DEBUG : Server.run() - starting server thread "
+                + " "
+                + getServerThreadId()
+                + " "
+                + Network.getServerConnectionStatus());
 
-      try {
         processTransactions(trans);
-      } catch (InterruptedException e) {
+
+        setServerThreadRunningStatus1("terminated");
+
+        serverEndTime1 = System.currentTimeMillis();
+
+        System.out.println(
+            "\n Terminating server thread - "
+                + getServerThreadId()
+                + " Running time "
+                + (serverEndTime1 - serverStartTime1)
+                + " milliseconds");
       }
 
-      serverEndTime1 = System.currentTimeMillis();
+      if (getServerThreadId().equals("server2")) {
 
-      setServerThreadRunningStatus1("terminated");
+        serverStartTime2 = System.currentTimeMillis();
 
-      System.out.println(
-          "\n Terminating server thread - "
-              + getServerThreadId()
-              + " Running time "
-              + (serverEndTime1 - serverStartTime1)
-              + " milliseconds");
-    }
+        System.out.println(
+            "\n DEBUG : Server.run() - starting server thread "
+                + getServerThreadId()
+                + " "
+                + Network.getServerConnectionStatus());
 
-    if (getServerThreadId().equals("server2")) {
-
-      System.out.println(
-          "\n DEBUG : Server.run() - starting server thread "
-              + getServerThreadId()
-              + " "
-              + Network.getServerConnectionStatus());
-
-      serverStartTime2 = System.currentTimeMillis();
-
-      try {
         processTransactions(trans);
-      } catch (InterruptedException e) {
+
+        setServerThreadRunningStatus2("terminated");
+
+        serverEndTime2 = System.currentTimeMillis();
+
+        System.out.println(
+            "\n Terminating server thread - "
+                + getServerThreadId()
+                + " Running time "
+                + (serverEndTime2 - serverStartTime2)
+                + " milliseconds");
       }
 
-      serverEndTime2 = System.currentTimeMillis();
-
-      setServerThreadRunningStatus2("terminated");
-
-      System.out.println(
-          "\n Terminating server thread - "
-              + getServerThreadId()
-              + " Running time "
-              + (serverEndTime2 - serverStartTime2)
-              + " milliseconds");
-    }
-
-    while (true) {
-      if ((getServerThreadId().equals("server2") && serverThreadRunningStatus1.equals("terminated"))
-          || (getServerThreadId().equals("server1")
-              && serverThreadRunningStatus2.equals("terminated"))) {
+      if ((serverThreadRunningStatus1.equals("terminated")
+              && getServerThreadId().equals("server2"))
+          || (serverThreadRunningStatus2.equals("terminated")
+              && getServerThreadId().equals("server1"))) {
 
         Network.disconnect(Network.getServerIP());
-
-        break;
       }
-      Thread.yield();
-    }
 
-    if (getServerThreadId().equals("server1")) {
-      System.out.println();
+      if (getServerThreadId().equals("server1")) {
+        System.out.println();
+        System.out.println();
 
-      double balance1 = account[findAccount("60520")].getBalance();
-      double balance2 = account[findAccount("22310")].getBalance();
-      double balance3 = account[findAccount("91715")].getBalance();
+        double balance1 = account[findAccount("60520")].getBalance();
+        double balance2 = account[findAccount("22310")].getBalance();
+        double balance3 = account[findAccount("91715")].getBalance();
 
-      String result1 = (balance1 == 1000.0) ? "\t✅Pass" : "\t🔴Fail";
-      String result2 = (balance2 == 50.0) ? "\t✅Pass" : "\t🔴Fail";
-      String result3 = (balance3 == -50.0) ? "\t✅Pass" : "\t🔴Fail";
+        String result1 = (balance1 == 1000.0) ? "\t✅Pass" : "\t🔴Fail";
+        String result2 = (balance2 == 50.0) ? "\t✅Pass" : "\t🔴Fail";
+        String result3 = (balance3 == -50.0) ? "\t✅Pass" : "\t🔴Fail";
 
-      System.out.println("60520 : " + balance1 + result1);
-      System.out.println("22310 : " + balance2 + result2);
-      System.out.println("91715 : " + balance3 + result3);
+        System.out.println("60520 : " + balance1 + result1);
+        System.out.println("22310 : " + balance2 + result2);
+        System.out.println("91715 : " + balance3 + result3);
+      }
+    } catch (InterruptedException e) {
     }
   }
 }
