@@ -302,12 +302,9 @@ public class Server extends Thread {
         //        while (Network.getOutBufferStatus().equals("full")) {
         //          Thread.yield(); /* Yield the cpu if the network output buffer is full */
         //        }
-
-        /*
-         * System.out.
-         * println("\n DEBUG : Server.processTransactions() - transferring out account "
-         * + trans.getAccountNumber());
-         */
+        //        System.out.println(
+        //            "\n DEBUG : Server.processTransactions() - transferring out account "
+        //                + trans.getAccountNumber());
 
         Network.transferOut(trans);
         /*
@@ -315,13 +312,15 @@ public class Server extends Thread {
          */
         setNumberOfTransactions((getNumberOfTransactions() + 1));
         /* Count the number of transactions processed */
+      } else {
+        break;
       }
     }
 
-    //    System.out.println(
-    //        "\n DEBUG : Server.processTransactions() - "
-    //            + getNumberOfTransactions()
-    //            + " accounts updated");
+    System.out.println(
+        "\n DEBUG : Server.processTransactions() - "
+            + getNumberOfTransactions()
+            + " accounts updated");
 
     return true;
   }
@@ -494,12 +493,16 @@ public class Server extends Thread {
                 + " milliseconds");
       }
 
-      if ((serverThreadRunningStatus1.equals("terminated")
-              && getServerThreadId().equals("server2"))
-          || (serverThreadRunningStatus2.equals("terminated")
-              && getServerThreadId().equals("server1"))) {
+      while (true) {
+        if ((serverThreadRunningStatus1.equals("terminated") && getServerThreadId().equals("server2"))
+            || (serverThreadRunningStatus2.equals("terminated")
+                && getServerThreadId().equals("server1"))) {
 
-        Network.disconnect(Network.getServerIP());
+          Network.disconnect(Network.getServerIP());
+
+          break;
+        }
+        Thread.yield();
       }
 
       if (getServerThreadId().equals("server1")) {
