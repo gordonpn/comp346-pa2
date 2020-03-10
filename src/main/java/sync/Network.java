@@ -352,7 +352,6 @@ public class Network extends Thread {
     inComingPacket[inputIndexClient].setTransactionStatus("transferred");
 
 //    System.out.println("\n DEBUG : Network.send() - index inputIndexClient " + inputIndexClient);
-
 //    System.out.println(
 //        "\n DEBUG : Network.send() - account number "
 //            + inComingPacket[inputIndexClient].getAccountNumber());
@@ -395,7 +394,6 @@ public class Network extends Thread {
 
 //    System.out.println(
 //        "\n DEBUG : Network.receive() - index outputIndexClient " + outputIndexClient);
-
 //    System.out.println(
 //        "\n DEBUG : Network.receive() - account number " + outPacket.getAccountNumber());
 
@@ -481,7 +479,6 @@ public class Network extends Thread {
 
 //    System.out.println(
 //        "\n DEBUG : Network.transferIn() - index outputIndexServer " + outputIndexServer);
-
 //    System.out.println(
 //        "\n DEBUG : Network.transferIn() - account number " + inPacket.getAccountNumber());
 
